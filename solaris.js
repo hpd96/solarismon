@@ -3,13 +3,13 @@ var format = require('util').format;
 var serialport = require("serialport");
 var mqtt = require('mqtt');
 
-var mqttClient  = mqtt.connect('mqtt://tux.home');
+var mqttClient  = mqtt.connect('mqtt://easymeter-pi');
 var SerialPort = serialport.SerialPort;
 
-var baseFileName = '/home/pi/solaris';
+var baseFileName = '/home/pi/solarismon/solarismon-store';
 var mqttConnected = false;
 
-var lineMapping = ['?', '?', 'P1', 'P2', 'TK', 'TR', 'TS', 'TV', 'V', 'Status', 'P'];  
+var lineMapping = ['HA', 'BSK', 'P1', 'P2', 'TK', 'TR', 'TS', 'TV', 'V', 'Status', 'P'];  
 
 var serial = new SerialPort("/dev/ttyAMA0", {
   baudrate: 19200,
@@ -66,8 +66,8 @@ function writeFile(data){
     var year = date.getFullYear();
     var month = date.getMonth() < 9 ? '0' + (date.getMonth() + 1) : '' + (date.getMonth() + 1);	
     var day = date.getDate() < 10 ? '0' + date.getDate() : '' + date.getDate(); 
-    var filename = format("%s-%d-%s-%s.txt", baseFileName, year, month, day);
-    fs.appendFileSync(filename, format("%s: %s\n", data.date, data.line || 'error'));		
+    var filename = format("%s-%d-%s-%s.txt", baseFileName, year, month, day );
+    fs.appendFileSync(filename, format("%s: %s\n", data.date, data.line || 'error'));
 }
 
 
@@ -86,6 +86,7 @@ function parseLine(line) {
     return result;
 }
 
+// convert german "," float separator to "."
 function adjustFormat(data) {
     if(data.V){
         data.V = data.V.replace(/,/g, '.');
