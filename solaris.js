@@ -3,7 +3,7 @@ var format = require('util').format;
 var serialport = require("serialport");
 var mqtt = require('mqtt');
 
-var mqttClient  = mqtt.connect('mqtt://easymeter-pi');
+var mqttClient  = mqtt.connect('mqtt://tux.home');
 var SerialPort = serialport.SerialPort;
 
 var baseFileName = '/home/pi/solarismon/solarismon-store';
@@ -16,6 +16,7 @@ var serial = new SerialPort("/dev/ttyAMA0", {
   parser: serialport.parsers.readline("\r")
 });
 
+var bStoreTextFile = false;
 var mqttTopic = "sensors/solaris"
 process.env.TZ = 'Europe/Berlin';
 
@@ -67,7 +68,10 @@ function writeFile(data){
     var month = date.getMonth() < 9 ? '0' + (date.getMonth() + 1) : '' + (date.getMonth() + 1);	
     var day = date.getDate() < 10 ? '0' + date.getDate() : '' + date.getDate(); 
     var filename = format("%s-%d-%s-%s.txt", baseFileName, year, month, day );
-    fs.appendFileSync(filename, format("%s: %s\n", data.date, data.line || 'error'));
+    if ( bStoreTextFile == true )
+    {
+        fs.appendFileSync(filename, format("%s: %s\n", data.date, data.line || 'error'));
+    }
 }
 
 
