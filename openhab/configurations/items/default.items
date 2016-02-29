@@ -7,6 +7,7 @@ DateTime solarisLastUpdate "Letzter Stand [%1$tA, %1$tR]" <calendar> (gSolaris) 
 Number solarisBSK  "BSK [MAP(bsk.map):%s]"	<lock>  (gSolaris) {mqtt="<[tux:sensors/solaris:state:JSONPATH($.BSK)]"}
 
 String solarisStatus  "Fehler [MAP(status.map):%s]"   <info>      (gSolaris) {mqtt="<[tux:sensors/solaris:state:JSONPATH($.Status)]"}
+String solarisHandSteuerung  "Steuerung [MAP(ha.map):%s]"   <hand>      (gSolaris) {mqtt="<[tux:sensors/solaris:state:JSONPATH($.HA)]"}
 
 Group gSolarisChart (gSolaris)
 Number solarisKollektor "Kollektor [%.0f °C]" <temperature> (gSolarisChart) {mqtt="<[tux:sensors/solaris:state:JSONPATH($.TK)]"}
@@ -15,8 +16,8 @@ Number solarisVorlauf  "Vorlauf [%.0f °C]" <temperature> (gSolarisChart) {mqtt=
 Number solarisRuecklauf "Rücklauf [%.0f °C]" <temperature> (gSolarisChart) {mqtt="<[tux:sensors/solaris:state:JSONPATH($.TR)]"}
 
 Group gSolarisChart2 (gSolaris)  
-Number solarisPumpe1  "Pumpe 1 [%.0f %%]" 	<rain>		 (gSolarisChart2)	{mqtt="<[tux:sensors/solaris:state:JSONPATH($.P1)]"}
-Number solarisPumpe2  "Pumpe 2 [MAP(pump.map):%s]"	<rain>  (gSolarisChart2) {mqtt="<[tux:sensors/solaris:state:JSONPATH($.P2)]"}
+Number solarisPumpe1  "Pumpe 1 [%.0f %%]" 	<sun>		 (gSolarisChart2)	{mqtt="<[tux:sensors/solaris:state:JSONPATH($.P1)]"}
+Number solarisPumpe2  "Pumpe 2 [MAP(pump.map):%s]"	<sun>  (gSolarisChart2) {mqtt="<[tux:sensors/solaris:state:JSONPATH($.P2)]"}
 Number solarisDurchfluss  "Durchfluss [%.1f l/m]"   <water> (gSolarisChart2)	{mqtt="<[tux:sensors/solaris:state:JSONPATH($.V)]"}
 Number solarisLeistung  "aktuelle Leistung [%.0f W]" <energy> (gSolarisChart2) {mqtt="<[tux:sensors/solaris:state:JSONPATH($.P)]"}
 

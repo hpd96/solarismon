@@ -1,7 +1,7 @@
-sitemap default label="N3A A&P"
+sitemap default label="openHAB smartHome"
 {
 	 Frame {
-		Text label="Rotex Solaris R3" icon="cellar" {
+		Text label="Rotex Solaris RPS3" icon="cellar" {
 	        	Frame label="Rotex Solaris" {    
 	        		Text item=solarisLastUpdate
 	        		Text item=solarisBSK
@@ -13,6 +13,7 @@ sitemap default label="N3A A&P"
 	                	Text item=solarisRuecklauf
 	                	Text item=solarisDurchfluss                
 	                	Text item=solarisLeistung                
+				Text item=solarisHandSteuerung
 	                	Text item=solarisStatus
 		        }
 		        Frame {

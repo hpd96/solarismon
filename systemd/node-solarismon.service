@@ -1,0 +1,13 @@
+[Service]
+ExecStart=/opt/node/bin/node /home/pi/solarismon/solaris.js
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=node-solarismon
+User=pi
+Group=pi
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+

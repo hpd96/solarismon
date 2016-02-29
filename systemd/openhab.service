@@ -1,0 +1,16 @@
+[Unit]
+Description=Open Home Automation Bus
+
+[Service]
+Type=forking
+GuessMainPID=yes
+ExecStart=/opt/openhab/start-daemon.sh
+ExecStop=/usr/bin/kill -SIGINT $MAINPID
+ExecStopPost=
+User=pi
+#Group=daemon
+WorkingDirectory=/opt/openhab
+
+[Install]
+WantedBy=multi-user.target
+
