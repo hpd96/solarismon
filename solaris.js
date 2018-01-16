@@ -20,7 +20,8 @@ var mqtt = require('mqtt');
 var mqttClient  = mqtt.connect('mqtt://localhost');
 var SerialPort = serialport.SerialPort;
 
-var baseFileName = '/home/pi/solarismon/solarismon-store';
+var baseFileDir = '/home/pi/solarismon/logs';
+var baseFileName = 'solarismon-store';
 var mqttConnected = false;
 
 var lineMapping = ['HA', 'BSK', 'P1', 'P2', 'TK', 'TR', 'TS', 'TV', 'V', 'Status', 'P'];
@@ -30,7 +31,7 @@ var serial = new SerialPort(  sSerialPort , {
   parser: serialport.parsers.readline("\r")
 });
 
-var bStoreTextFile = false;
+var bStoreTextFile = true; //false;
 var bVerbose = false;
 
 var mqttTopic = "sensors/solaris"
@@ -90,7 +91,11 @@ function writeFile(data){
     var year = date.getFullYear();
     var month = date.getMonth() < 9 ? '0' + (date.getMonth() + 1) : '' + (date.getMonth() + 1);	
     var day = date.getDate() < 10 ? '0' + date.getDate() : '' + date.getDate(); 
-    var filename = format("%s-%d-%s-%s.txt", baseFileName, year, month, day );
+    var filedir = format('%s/%s', baseFileDir, parseInt(year) );
+    if (! fs.existsSync(filedir)) {
+      fs.mkdir(filedir);
+    }
+    var filename = format("%s/%s-%d-%s-%s.txt", filedir, baseFileName, year, month, day );
     if ( bStoreTextFile == true )
     {
         fs.appendFileSync(filename, format("%s: %s\n", data.date, data.line || 'error'));
@@ -117,6 +122,7 @@ function parseLine(line) {
             if ( ! IsNumeric( result['TS'] ) ) { return null; }
             if ( ! IsNumeric( result['P1'] ) ) { return null; }
             if ( ! IsNumeric( result['P'] ) ) { return null; }
+            if ( result['Status'] == '' ) { result['Status']="-"; }
 	} // no ';'
 	else
 	{
