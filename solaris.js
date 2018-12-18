@@ -14,11 +14,10 @@ var sSerialPort = "/dev/ttyAMA0";
 
 var fs = require('fs');
 var format = require('util').format;
-var serialport = require("serialport");
 var mqtt = require('mqtt');
 
-var mqttClient  = mqtt.connect('mqtt://localhost');
-var SerialPort = serialport.SerialPort;
+const mqttHost = 'localhost';
+var mqttClient  = mqtt.connect('mqtt://' + mqttHost);
 
 var baseFileDir = '/home/pi/solarismon/logs';
 var baseFileName = 'solarismon-store';
@@ -26,41 +25,48 @@ var mqttConnected = false;
 
 var lineMapping = ['HA', 'BSK', 'P1', 'P2', 'TK', 'TR', 'TS', 'TV', 'V', 'Status', 'P'];
 
-var serial = new SerialPort(  sSerialPort , {
-  baudrate: 19200,
-  parser: serialport.parsers.readline("\r")
-});
+const SerialPort = require("serialport");
+const Readline = require('@serialport/parser-readline')
+const port = new SerialPort( sSerialPort , { baudRate: 19200 } )
+const parser = port.pipe(new Readline({ delimiter: '\n' }))
 
-var bStoreTextFile = true; //false;
-var bVerbose = false;
+const bVerbose = true;
+const bStoreTextFile = true ;
 
 var mqttTopic = "sensors/solaris"
 process.env.TZ = 'Europe/Berlin';
 
+console.log( "rotex solaris mon ", lineMapping)
+console.log( format("mqtt host: %s topic: %s", mqttHost, mqttTopic) )
 
-serial.on("open", function () {
-  console.log('serial open');
-  serial.on('data', function(line) {
+
+  parser.on('data', function(line) {
+    if ( bVerbose == true )
+    {
+      console.log("serial: " + line);
+    }
     // drop CR or LF
     line = line.replace(/(\r\n|\n|\r)/gm,"");	
     var data = parseLine(line);
     if (data != null )
     {
-      writeFile(data);
+      if ( bStoreTextFile == true )
+      {
+        writeFile(data, line);
+      }
       data = adjustFormat(data);
       mqttClient.publish(mqttTopic, JSON.stringify(data));
       if ( bVerbose == true )
       {
-        console.log(data);
+        console.log("mqtt pub: ", data);
       }
     } // parseable data?
   });
-});
 
 
 mqttClient.on('connect', function () {
   mqttConnected = true;
-  console.log("mqtt->connected", arguments);
+  console.log("mqtt->connected"); //, arguments);
 });
 
 mqttClient.on('reconnect', function () {
@@ -86,20 +92,21 @@ mqttClient.on('error', function (e) {
 
 
 
-function writeFile(data){
+function writeFile(data, serialLine){
     var date = data.date;	
     var year = date.getFullYear();
     var month = date.getMonth() < 9 ? '0' + (date.getMonth() + 1) : '' + (date.getMonth() + 1);	
     var day = date.getDate() < 10 ? '0' + date.getDate() : '' + date.getDate(); 
     var filedir = format('%s/%s', baseFileDir, parseInt(year) );
+    if (! fs.existsSync(baseFileDir)) {
+      fs.mkdir(baseFileDir);
+    }
     if (! fs.existsSync(filedir)) {
       fs.mkdir(filedir);
     }
     var filename = format("%s/%s-%d-%s-%s.txt", filedir, baseFileName, year, month, day );
-    if ( bStoreTextFile == true )
-    {
-        fs.appendFileSync(filename, format("%s: %s\n", data.date, data.line || 'error'));
-    }
+    var shortDate = format("%s-%s-%s %s", year, month, day, "00000000"); // date.substr(17,8) );
+    fs.appendFileSync(filename, format("%s: %s\n", shortDate, serialLine || 'error'));
 }
 
 function IsNumeric(num) {
@@ -112,7 +119,6 @@ function parseLine(line) {
   	var parts = line.split(';', lineMapping.length);
 	if(parts.length === lineMapping.length) {
             result = {date: new Date()};
-            result.line = line;
 	    parts.forEach(function(p, i) {
 		var name = lineMapping[i] ==='?' ? 'var' + i : lineMapping[i];
 		result[name] = p;
