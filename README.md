@@ -13,6 +13,7 @@ Detailed information is available on **[the project homepage](http://sonyl.githu
 (CONF connector, 3.5mm stereo jack).
 - a **JavaScript** program running on the Pi, handles the data, does some simple conversions, writes the data to 
 log files and finally generates a **[MQTT] (http://mqtt.org)** message for every received measurement 
+- node.js as server for javascript
 - this MQTT message is transferred to a **[Mosquitto](http://mosquitto.org/)** MQTT broker  running on the linux home server.
 - an **[OpenHAB] (http://www.openhab.org/)** home automation server running on the same linux box is configured to receive the 
 MQTT messages. It is the task of openHAB to store the measured values in a round robin database and to visualize them. 
@@ -35,17 +36,16 @@ linux box with less limited resources than the Pi was promising less efforts in 
  of 30s and a baudrate of 19200.
 
 2. **Node.js init script:**
-If you want to have your Node.js application automatically started on every RaspberryPi reboot, an init script
-like this one https://gist.github.com/peterhost/715255 may be used.  
-Since */bin/sh* is a softlink to */bin/dash* on my Raspbian linux, the script did not work as expected, so I had to replace
+If you want to have your Node.js application automatically started on every RaspberryPi reboot, use the provided systemd file and the system/install.sh
 
-        #!/bin/sh
-        with 
-        #!/bin/bash
-in the first line of the script.
+requirements:
+sudo apt-get nodejs npm mosquitto
+npm install serialport
+
 The Node.js application is simply started with 
 
-        node solaris.js
+        nodejs solaris.js
+        
 3. **openHAB configuration:**  
 Some example openHAB configuration files (items, persistence, sitemaps) are located unter the "openhab" directory in this repository. They define items (measurement values), their graphical representation in the openHAB clients and their persistence strategy.
 Don't forget to activate and configure the MQTT binding, as described in the [openHAB configuration wiki](https://github.com/openhab/openhab/wiki/MQTT-Binding). For me, changing / uncommenting the following two lines of `OPENHAB_HOME/configurations/openhab.cfg` was sufficient.
