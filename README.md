@@ -39,7 +39,8 @@ linux box with less limited resources than the Pi was promising less efforts in 
 If you want to have your Node.js application automatically started on every RaspberryPi reboot, use the provided systemd file and the system/install.sh
 
 requirements:
-sudo apt-get nodejs npm mosquitto
+sudo apt-get install nodejs mosquitto
+curl https://www.npmjs.com/install.sh | sudo sh
 npm install serialport
 
 The Node.js application is simply started with 
